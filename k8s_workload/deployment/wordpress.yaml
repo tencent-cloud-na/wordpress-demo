@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress-mysql
+  namespace: default
+  labels:
+    k8s-app: wordpress-mysql
+    qcloud-app: wordpress-mysql
+spec:
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: wordpress-mysql
+      qcloud-app: wordpress-mysql
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: wordpress-mysql
+        qcloud-app: wordpress-mysql
+    spec:
+      containers:
+      - env:
+        - name: WORDPRESS_DB_NAME
+          value: wordpress
+        - name: WORDPRESS_DB_HOST
+          value: ${mysql_private_ip}
+        - name: WORDPRESS_DB_PASSWORD
+          value: Password
+        - name: WORDPRESS_DB_USER
+          value: root
+        image: wordpress:latest
+        imagePullPolicy: Always
+        name: wordpress-pod
+        resources:
+          limits:
+            cpu: "2"
+            memory: 1Gi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        securityContext:
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: qcloudregistrykey
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

@@ -1,0 +1,30 @@
+apiVersion: cloud.tencent.com/v1alpha1
+kind: TkeServiceConfig
+metadata:
+  name: ${ingress-lb-config-name}
+  namespace: default
+spec:
+  loadBalancer:
+    l7Listeners:
+    - protocol: HTTPS
+      port: 443
+      domains:
+      - domain: ${cdn-domain}
+        rules:
+        - url: "/"
+          forwardType: HTTP
+          session:
+            enable: true
+            sessionExpireTime: 3200
+          scheduler: WRR
+    - protocol: HTTP
+      port: 80
+      domains:
+      - domain: ${cdn-domain}
+        rules:
+        - url: "/"
+          forwardType: HTTP
+          session:
+            enable: true
+            sessionExpireTime: 3200
+          scheduler: WRR
